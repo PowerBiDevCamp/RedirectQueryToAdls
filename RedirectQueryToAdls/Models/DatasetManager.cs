@@ -29,7 +29,6 @@ namespace RedirectQueryToAdls.Models {
       return null;
     }
 
-
     public static void PatchAdlsCredentials(Guid WorkspaceId, string DatasetId) {
       PowerBIClient pbiClient = TokenManager.GetPowerBiClient();
       pbiClient.Datasets.TakeOverInGroup(WorkspaceId, DatasetId);
@@ -52,10 +51,7 @@ namespace RedirectQueryToAdls.Models {
       };
     }
 
-
-
     // Using Tabular Object Model via the XMLA endpoint in Power BI Premium
-
     public static TOM.Server server = new TOM.Server();
 
     public static void ConnectToPowerBIAsUser() {
@@ -77,9 +73,7 @@ namespace RedirectQueryToAdls.Models {
     }
 
     public static void GetDatabaseInfo(string Name) {
-
       TOM.Database database = server.Databases.GetByName(Name);
-
       Console.WriteLine("Name: " + database.Name);
       Console.WriteLine("ID: " + database.ID);
       Console.WriteLine("ModelType: " + database.ModelType);
@@ -89,33 +83,28 @@ namespace RedirectQueryToAdls.Models {
       Console.WriteLine("CompatibilityMode: " + database.CompatibilityMode);
       Console.WriteLine("LastProcessed: " + database.LastProcessed);
       Console.WriteLine("LastSchemaUpdate: " + database.LastSchemaUpdate);
-
     }
 
     public static void GetTable(string DatabaseName, string TableName) {
-
       TOM.Database database = server.Databases.GetByName(DatabaseName);
-
       TOM.Table  table = database.Model.Tables.Find("Sales");
-
       Console.WriteLine("Name: " + table.Name);
       Console.WriteLine("ObjectType: " + table.ObjectType);
       Console.WriteLine("Partitions: " + table.Partitions.Count);
       Console.WriteLine();
-
       TOM.Partition partition = table.Partitions[0];
       var partitionSource = partition.Source as TOM.MPartitionSource;
       Console.WriteLine(partitionSource.Expression);
-
     }
 
     public static void UpdateTableQuery(string DatabaseName, string TableName) {
-
       TOM.Database database = server.Databases.GetByName(DatabaseName);
       TOM.Table table = database.Model.Tables.Find(TableName);
       TOM.Partition partition = table.Partitions[0];
+
       // get table partion as M partition
       var partitionSource = partition.Source as TOM.MPartitionSource;
+
       // get text for query
       string queryTemplate = Properties.Resources.SalesQuery_m;
       string query = queryTemplate.Replace("@adlsStorageAccountUrl", GlobalConstants.adlsBlobAccount);
@@ -128,7 +117,6 @@ namespace RedirectQueryToAdls.Models {
       Console.WriteLine(query);
       partitionSource.Expression = query;
       database.Model.SaveChanges();
-
     }
 
     public static void RefreshDataset(string Name) {
@@ -154,22 +142,17 @@ namespace RedirectQueryToAdls.Models {
 
       server.Databases.Add(database);
       database.Update(Microsoft.AnalysisServices.UpdateOptions.ExpandFull);
-
       return database;
     }
 
     public static TOM.Database CopyDatabase(string sourceDatabaseName, string DatabaseName) {
-
       TOM.Database sourceDatabase = server.Databases.GetByName(sourceDatabaseName);
-
       string newDatabaseName = server.Databases.GetNewName(DatabaseName);
       TOM.Database targetDatabase = CreateDatabase(newDatabaseName);
       sourceDatabase.Model.CopyTo(targetDatabase.Model);
       targetDatabase.Model.SaveChanges();
-
       targetDatabase.Model.RequestRefresh(TOM.RefreshType.Full);
       targetDatabase.Model.SaveChanges();
-
       return targetDatabase;
     }
     
