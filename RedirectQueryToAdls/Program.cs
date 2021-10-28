@@ -1,10 +1,10 @@
-﻿using RedirectQueryToAdls.Models;
+﻿using Microsoft.PowerBI.Api.Models;
+using RedirectQueryToAdls.Models;
 using System;
 
 namespace RedirectQueryToAdls {
   class Program {
     static void Main(string[] args) {
-
       Console.WriteLine();
 
       string localPbixFilePath = GlobalConstants.localPbixFilePath;
@@ -18,6 +18,12 @@ namespace RedirectQueryToAdls {
       DatasetManager.ConnectToPowerBIAsUser();
       string tableName = GlobalConstants.tableName;
       DatasetManager.UpdateTableQuery(datasetName, tableName);
+
+      Dataset dataset = DatasetManager.GetDataset(targetWorkspaceId, datasetName);
+
+      DatasetManager.PatchAdlsCredentials(targetWorkspaceId, dataset.Id);
+
+      DatasetManager.RefreshDataset(datasetName);
 
     }
   }
